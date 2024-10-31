@@ -56,5 +56,8 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "RobbiePlatform.sln"
+    "dotnet.defaultSolution": "RobbiePlatform.sln",
+    "cSpell.words": [
+        "Raycast"
+    ]
 }
