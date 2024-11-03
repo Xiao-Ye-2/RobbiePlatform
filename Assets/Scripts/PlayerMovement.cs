@@ -15,21 +15,29 @@ public class PlayerMovement : MonoBehaviour
     public float jumpHoldForce = 1.9f;
     public float jumpHoldDuration = 0.1f;
     public float crouchJumpBoost = 2.5f;
+    public float hangingJumpForce = 15f;
     private float jumpTime;
     [Header("Motions")]
     public bool isCrouching = false;
     public bool onGround = false;
     public bool isJumping = false;
     public bool isHeadBlocked = false;
+    public bool isHanging = false;
     [Header("Environment")]
     public float footOffset = 0.4f;
     public float headClearance = 0.5f;
     public float groundDistance = 0.2f;
     public LayerMask groundLayer;
+    public float eyeHeight = 1.5f;
+    public float grabDistance = 0.4f;
+    public float reachDistance = 0.7f;
+    private float playerHeight;
+
     [Header("Input Settings")]
     private bool jumpPressed;
     private bool jumpHeld;
     private bool crouchHeld;
+    private bool crouchPressed;
 
     private float xVelocity;
     private Vector2 colliderStandSize;
@@ -45,6 +53,8 @@ public class PlayerMovement : MonoBehaviour
         colliderStandOffset = coll.offset;
         colliderCrouchSize = new Vector2(coll.size.x, coll.size.y / 2f);
         colliderCrouchOffset = new Vector2(coll.offset.x, coll.offset.y / 2f);
+
+        playerHeight = coll.size.y;
     }
 
     void Update()
@@ -53,6 +63,8 @@ public class PlayerMovement : MonoBehaviour
         jumpHeld = Input.GetButton("Jump");
         if (Input.GetButtonDown("Jump"))
             jumpPressed = true;
+        if (Input.GetButtonDown("Crouch"))
+            crouchPressed = true;
     }
 
     private void FixedUpdate()
@@ -68,6 +80,7 @@ public class PlayerMovement : MonoBehaviour
         jumpPressed = false;
         jumpHeld = false;
         crouchHeld = false;
+        crouchPressed = false;
     }
 
 
@@ -77,10 +90,28 @@ public class PlayerMovement : MonoBehaviour
         RaycastHit2D rightCheck = Raycast(new Vector2(footOffset, 0), Vector2.down, groundDistance, groundLayer);
         isHeadBlocked = Raycast(new Vector2(0, coll.size.y), Vector2.up, headClearance, groundLayer);
         onGround = leftCheck || rightCheck;
+
+        float direction = transform.localScale.x;
+        Vector2 grabDir = new Vector2(direction, 0f);
+        RaycastHit2D blockedCheck = Raycast(new Vector2(footOffset * direction, playerHeight), grabDir, grabDistance, groundLayer);
+        RaycastHit2D wallCheck = Raycast(new Vector2(footOffset * direction, eyeHeight), grabDir, grabDistance, groundLayer);
+        RaycastHit2D ledgeCheck = Raycast(new Vector2(reachDistance * direction, playerHeight), Vector2.down, grabDistance, groundLayer);
+        if (!onGround && rb.velocity.y < 0 && ledgeCheck && wallCheck && !blockedCheck)
+        {
+            Vector3 pos = transform.position;
+            pos.x += (wallCheck.distance - 0.05f) * direction;
+            pos.y -= ledgeCheck.distance;
+            transform.position = pos;
+            rb.bodyType = RigidbodyType2D.Static;
+            isHanging = true;
+        }
     }
 
     private void GroundMovement()
     {
+        if (isHanging)
+            return;
+
         if (crouchHeld && !isCrouching && onGround)
             ToggleCrouch(true);
         else if (((!crouchHeld && !isHeadBlocked) || !onGround) && isCrouching)
@@ -113,7 +144,21 @@ public class PlayerMovement : MonoBehaviour
 
     private void MidAirMovement()
     {
-        if (jumpPressed && onGround && !isJumping)
+        if (isHanging)
+        {
+            if (jumpPressed)
+            {
+                rb.bodyType = RigidbodyType2D.Dynamic;
+                rb.AddForce(Vector2.up * hangingJumpForce, ForceMode2D.Impulse);
+                isHanging = false;
+            }
+            else if (crouchPressed)
+            {
+                rb.bodyType = RigidbodyType2D.Dynamic;
+                isHanging = false;
+            }
+        }
+        else if (jumpPressed && onGround && !isJumping && !isHeadBlocked)
         {
             isJumping = true;
             jumpTime = Time.time + jumpHoldDuration;
