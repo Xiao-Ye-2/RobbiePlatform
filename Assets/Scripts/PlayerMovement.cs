@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -129,9 +126,9 @@ public class PlayerMovement : MonoBehaviour
     private void FlipDirection()
     {
         if (xVelocity < 0)
-            transform.localScale = new Vector2(-1, 1);
+            transform.localScale = new Vector3(-1, 1, 1);
         else if (xVelocity > 0)
-            transform.localScale = new Vector2(1, 1);
+            transform.localScale = new Vector3(1, 1, 1);
     }
 
     void ToggleCrouch(bool crouching)
@@ -169,6 +166,7 @@ public class PlayerMovement : MonoBehaviour
                 ToggleCrouch(false);
                 rb.AddForce(Vector2.up * crouchJumpBoost, ForceMode2D.Impulse);
             }
+            AudioManager.PlayJumpAudio();
         }
         else if (isJumping)
         {

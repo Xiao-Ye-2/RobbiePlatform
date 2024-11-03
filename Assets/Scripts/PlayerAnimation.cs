@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerAnimation : MonoBehaviour
@@ -35,5 +33,15 @@ public class PlayerAnimation : MonoBehaviour
         anim.SetBool(hangingID, playerMovement.isHanging);
         anim.SetBool(crouchID, playerMovement.isCrouching);
         anim.SetFloat(fallID,rb.velocity.y);
+    }
+
+    public void StepAudio()
+    {
+        AudioManager.PlayFootStepAudio();
+    }
+
+    public void CrouchStepAudio()
+    {
+        AudioManager.PlayCrouchFootStepAudio();
     }
 }
