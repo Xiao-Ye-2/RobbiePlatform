@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Audio;
 
 public class AudioManager : MonoBehaviour
 {
@@ -8,6 +9,10 @@ public class AudioManager : MonoBehaviour
     public AudioClip musicClip;
     [Header("FX Sounds")]
     public AudioClip deathFXClip;
+    public AudioClip orbFXClip;
+    public AudioClip doorFXClip;
+    public AudioClip startFXClip;
+    public AudioClip winFXClip;
     [Header("Player Sounds")]
     public AudioClip[] walkStepClips;
     public AudioClip[] crouchStepClips;
@@ -16,6 +21,7 @@ public class AudioManager : MonoBehaviour
     [Header("Voice Sounds")]
     public AudioClip jumpVoiceClip;
     public AudioClip deathVoiceClip;
+    public AudioClip orbVoiceClip;
 
     private AudioSource ambientSource;
     private AudioSource musicSource;
@@ -28,6 +34,7 @@ public class AudioManager : MonoBehaviour
         if (instance != null)
         {
             Destroy(gameObject);
+            return;
         }
         else
         {
@@ -53,6 +60,17 @@ public class AudioManager : MonoBehaviour
         instance.musicSource.clip = instance.musicClip;
         instance.musicSource.loop = true;
         instance.musicSource.Play();
+
+        instance.fxSource.clip = instance.startFXClip;
+        instance.fxSource.Play();
+    }
+
+    public static void PlayWinAudio()
+    {
+        instance.fxSource.clip = instance.winFXClip;
+        instance.fxSource.Play();
+
+        instance.playerSource.Stop();
     }
 
     public static void PlayFootStepAudio()
@@ -67,6 +85,12 @@ public class AudioManager : MonoBehaviour
         int index = Random.Range(0, instance.crouchStepClips.Length);
         instance.playerSource.clip = instance.crouchStepClips[index];
         instance.playerSource.Play();
+    }
+
+    public static void PlayDoorAudio()
+    {
+        instance.fxSource.clip = instance.doorFXClip;
+        instance.fxSource.PlayDelayed(1f);
     }
 
     public static void PlayJumpAudio()
@@ -87,6 +111,15 @@ public class AudioManager : MonoBehaviour
         instance.voiceSource.Play();
 
         instance.fxSource.clip = instance.deathFXClip;
+        instance.fxSource.Play();
+    }
+
+    public static void PlayOrbAudio()
+    {
+        instance.voiceSource.clip = instance.orbVoiceClip;
+        instance.voiceSource.Play();
+
+        instance.fxSource.clip = instance.orbFXClip;
         instance.fxSource.Play();
     }
 }
