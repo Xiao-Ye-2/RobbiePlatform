@@ -31,6 +31,7 @@ public class PlayerMovement : MonoBehaviour
     public float eyeHeight = 1.5f;
     public float grabDistance = 0.4f;
     public float reachDistance = 0.7f;
+    public float xVelocity;
     private float playerHeight;
 
     [Header("Input Settings")]
@@ -39,7 +40,6 @@ public class PlayerMovement : MonoBehaviour
     private bool crouchHeld;
     private bool crouchPressed;
 
-    private float xVelocity;
     private Vector2 colliderStandSize;
     private Vector2 colliderStandOffset;
     private Vector2 colliderCrouchSize;
